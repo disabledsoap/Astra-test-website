@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astra Solutions — Intellectual Property Law Firm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>emailjs.init('IfcRvo2y1lM53fZ0n');</script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <style>
+    :root {
+      --gold:        #D4913A;
+      --gold-light:  #E8B571;
+      --gold-dark:   #A86C1E;
+      --gold-pale:   #F0D9B5;
+      --gold-faint:  #FAF3E8;
+      --cream:       #FDF8F1;
+      --ink:         #1A1005;
+      --ink-mid:     #261700;
+      --ink-muted:   #7A6045;
+      --ink-subtle:  #B8A080;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--cream);
+      color: var(--ink);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Grain overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.028;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    h1, h2, h3, h4, .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+
+    /* ── Navigation ── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 72px;
+      background: rgba(253, 248, 241, 0.93);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(212, 145, 58, 0.14);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    #nav.scrolled {
+      border-bottom-color: rgba(212, 145, 58, 0.28);
+      box-shadow: 0 4px 32px rgba(26, 16, 5, 0.06);
+    }
+    .nav-inner {
+      max-width: 1320px; margin: 0 auto; padding: 0 2rem;
+      height: 100%; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-logo-img { height: 36px; width: 36px; flex-shrink: 0; }
+    .nav-wordmark { line-height: 1; }
+    .nav-wordmark-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.0625rem; font-weight: 600;
+      color: var(--ink); letter-spacing: 0.09em; text-transform: uppercase;
+    }
+    .nav-wordmark-sub {
+      font-size: 0.65rem; font-weight: 400;
+      letter-spacing: 0.22em; color: var(--ink-muted);
+      text-transform: uppercase; margin-top: 2px;
+    }
+    .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+    .nav-link {
+      font-size: 0.875rem; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink-muted); text-decoration: none;
+      position: relative; padding-bottom: 2px;
+      transition: color 0.25s ease;
+    }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 1px; background: var(--gold);
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nav-link:hover { color: var(--gold); }
+    .nav-link:hover::after { width: 100%; }
+    .nav-link.active { color: var(--gold); }
+    .nav-sep { width: 1px; height: 14px; background: var(--gold-pale); }
+    .nav-lang {
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; text-decoration: none; cursor: pointer;
+    }
+    .nav-lang.active { color: var(--gold); }
+    .nav-lang.inactive { color: var(--ink-subtle); }
+    .nav-lang.inactive:hover { color: var(--gold); }
+
+    /* Mobile toggle */
+    .hamburger {
+      display: none; background: none; border: none;
+      cursor: pointer; color: var(--ink); padding: 4px;
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: block; }
+    }
+
+    /* Mobile overlay menu */
+    #mobile-menu {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: var(--ink);
+      flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem;
+    }
+    #mobile-menu.open { display: flex; }
+    .mobile-close {
+      position: absolute; top: 24px; right: 24px;
+      background: none; border: none; cursor: pointer; color: rgba(253,248,241,0.5);
+      transition: color 0.2s;
+    }
+    .mobile-close:hover { color: var(--gold); }
+    .mobile-nav-link {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 400; letter-spacing: 0.06em;
+      color: var(--cream); text-decoration: none;
+      transition: color 0.25s ease;
+    }
+    .mobile-nav-link:hover { color: var(--gold); }
+
+    /* ── Shared utilities ── */
+    .section-tag {
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold);
+    }
+    .gold-rule { height: 1px; background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-light) 50%, var(--gold) 70%, transparent); }
+    .gold-dash { display: inline-block; width: 48px; height: 1px; background: linear-gradient(90deg, var(--gold), var(--gold-light), transparent); vertical-align: middle; }
+    .display-xl {
+      font-size: clamp(3.25rem, 7.5vw, 7.5rem);
+      font-weight: 400; line-height: 1.01; letter-spacing: -0.03em;
+    }
+    html.lang-ru .display-xl { font-size: clamp(2.5rem, 4.75vw, 4.75rem); }
+    html.lang-ru .hero-inner { padding-top: 4rem; padding-bottom: 4rem; }
+    html.lang-ru .hero-sub   { margin-bottom: 2rem; }
+    html.lang-ru .hero-cta   { margin-bottom: 2.5rem; }
+    .display-lg {
+      font-size: clamp(2.25rem, 4.5vw, 4rem);
+      font-weight: 400; line-height: 1.08; letter-spacing: -0.025em;
+    }
+    .display-md {
+      font-size: clamp(1.5rem, 2.5vw, 2.375rem);
+      font-weight: 500; line-height: 1.18; letter-spacing: -0.015em;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--gold); color: var(--ink);
+      font-size: 0.875rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 15px 34px; text-decoration: none;
+      position: relative; overflow: hidden;
+      transition: color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .btn-primary::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--gold-dark);
+      transform: translateX(-101%);
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-primary:hover::before { transform: translateX(0); }
+    .btn-primary:hover { color: #fff; box-shadow: 0 10px 40px rgba(168, 108, 30, 0.45); }
+    .btn-primary > * { position: relative; z-index: 1; }
+    .btn-primary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(212,145,58,0.4); color: rgba(212,145,58,0.85);
+      font-size: 0.875rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 14px 30px; text-decoration: none;
+      transition: border-color 0.3s, color 0.3s, background 0.3s;
+    }
+    .btn-ghost:hover {
+      border-color: var(--gold); color: var(--gold);
+      background: rgba(212,145,58,0.08);
+    }
+    .btn-ghost:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+    .btn-ghost:active { transform: scale(0.98); }
+
+    .btn-outline-sm {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--gold-pale); color: var(--gold);
+      font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 10px 20px; text-decoration: none;
+      transition: border-color 0.25s, background 0.25s, color 0.25s;
+    }
+    .btn-outline-sm:hover { border-color: var(--gold); background: var(--gold); color: var(--ink); }
+    .btn-outline-sm:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal[data-delay="1"] { transition-delay: 0.12s; }
+    .reveal[data-delay="2"] { transition-delay: 0.22s; }
+    .reveal[data-delay="3"] { transition-delay: 0.32s; }
+    .reveal[data-delay="4"] { transition-delay: 0.42s; }
+    .reveal[data-delay="5"] { transition-delay: 0.52s; }
+
+    /* ── Hero ── */
+    #hero {
+      background-color: var(--ink);
+      min-height: 100vh; position: relative; overflow: hidden;
+      display: flex; align-items: center;
+      padding-top: 72px;
+    }
+    @keyframes hero-logo-spin {
+      from { transform: translateY(-50%) rotate(0deg); }
+      to   { transform: translateY(-50%) rotate(360deg); }
+    }
+    .hero-bg-logo {
+      position: absolute; top: 50%; right: -4%;
+      transform: translateY(-50%);
+      width: clamp(420px, 52vw, 820px);
+      opacity: 0.065; filter: invert(1);
+      pointer-events: none; user-select: none;
+      animation: hero-logo-spin 28s linear infinite;
+      transform-origin: center center;
+    }
+    .hero-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 55% at 15% 55%, rgba(212,145,58,0.10) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 80% 30%, rgba(212,145,58,0.05) 0%, transparent 60%);
+    }
+    .hero-bottom-fade {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 220px;
+      background: linear-gradient(to top, rgba(26,16,5,0.55), transparent);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 1320px; margin: 0 auto; padding: 6rem 2rem 8rem;
+      position: relative; z-index: 2; width: 100%;
+    }
+    .hero-tag-row {
+      display: flex; align-items: center; gap: 18px; margin-bottom: 2.75rem;
+    }
+    .hero-tag-line { width: 52px; height: 1px; background: linear-gradient(90deg, var(--gold), transparent); }
+    .hero-h1 { color: var(--cream); margin-bottom: 1.75rem; max-width: 680px; }
+    .hero-h1 em { color: var(--gold); font-style: italic; }
+    .hero-sub {
+      font-size: 1.0625rem; line-height: 1.85; font-weight: 300;
+      color: rgba(253,248,241,0.55); max-width: 460px; margin-bottom: 3rem;
+    }
+    .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 5rem; }
+    .hero-countries {
+      border-top: 1px solid rgba(212,145,58,0.14);
+      padding-top: 1.5rem;
+    }
+    .hero-countries-label {
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: rgba(212,145,58,0.4); margin-bottom: 0.75rem;
+    }
+    .country-list {
+      display: flex; flex-wrap: wrap; gap: 6px 22px;
+    }
+    .country-item {
+      font-size: 0.75rem; font-weight: 400;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--ink-subtle);
+    }
+
+    /* ── About ── */
+    #about { background: var(--cream); padding: 8rem 2rem; }
+    .about-inner {
+      max-width: 1320px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center;
+    }
+    @media (max-width: 900px) { .about-inner { grid-template-columns: 1fr; gap: 3.5rem; } }
+    .about-quote {
+      border-left: 2px solid var(--gold);
+      padding-left: 2.5rem; position: relative;
+    }
+    .about-quote blockquote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.25rem, 2.2vw, 1.875rem);
+      font-weight: 500; line-height: 1.5; font-style: italic;
+      color: var(--ink); margin-bottom: 1.75rem;
+    }
+    .about-quote-attr {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .about-quote-attr span {
+      font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-muted);
+    }
+    .about-text p {
+      font-size: 1.0625rem; line-height: 1.9; font-weight: 300;
+      color: var(--ink-muted); margin-bottom: 1.25rem;
+    }
+    .about-text p:last-child { margin-bottom: 0; }
+
+    /* ── Services ── */
+    #services { background: var(--gold-faint); padding: 8rem 2rem; }
+    .services-inner { max-width: 1320px; margin: 0 auto; }
+    .services-header { text-align: center; margin-bottom: 5rem; }
+    .services-header h2 { color: var(--ink); margin-top: 1rem; }
+    .services-header .gold-rule { max-width: 260px; margin: 1.75rem auto 0; }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: rgba(212,145,58,0.15);
+    }
+    @media (max-width: 960px) { .services-grid { grid-template-columns: 1fr; background: transparent; gap: 1.5rem; } }
+
+    .scard {
+      background: #fff;
+      padding: 3rem 2.5rem 2.5rem;
+      display: flex; flex-direction: column;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .scard:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 24px 64px -12px rgba(168,108,30,0.22), 0 8px 24px -6px rgba(26,16,5,0.1);
+      z-index: 2;
+    }
+    .scard-top {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 2rem;
+    }
+    .scard-icon {
+      width: 52px; height: 52px;
+      border: 1px solid var(--gold-pale);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .scard-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 4.5rem; font-weight: 300;
+      color: var(--gold-pale); line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    .scard h3 {
+      font-size: 1.5rem; font-weight: 600; color: var(--ink);
+      margin-bottom: 0.625rem; letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    .scard-desc {
+      font-size: 1rem; line-height: 1.8; font-weight: 300;
+      color: var(--ink-muted); margin-bottom: 1.75rem; flex-grow: 0;
+    }
+    .scard-divider { height: 1px; background: var(--gold-pale); margin-bottom: 1.5rem; }
+    .scard-list {
+      list-style: none; display: flex; flex-direction: column;
+      gap: 0.6rem; margin-bottom: 2rem; flex-grow: 1;
+    }
+    .scard-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.9375rem; line-height: 1.65; color: var(--ink-muted);
+    }
+    .scard-bullet {
+      color: var(--gold); font-size: 0.5rem;
+      margin-top: 5px; flex-shrink: 0;
+    }
+
+    /* ── Stats ── */
+    #stats {
+      background: var(--ink-mid); padding: 7rem 2rem;
+      position: relative; overflow: hidden;
+    }
+    .stats-bg-logo {
+      position: absolute; right: -6%; top: 50%;
+      transform: translateY(-50%);
+      width: clamp(320px, 38vw, 560px);
+      opacity: 0.045; filter: invert(1); pointer-events: none;
+    }
+    .stats-inner { max-width: 1320px; margin: 0 auto; position: relative; z-index: 2; }
+    .stats-header { text-align: center; margin-bottom: 4rem; }
+    .stats-header h2 { color: var(--cream); margin-top: 1rem; }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(212,145,58,0.18);
+    }
+    @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
+    .stat-cell {
+      padding: 3.5rem 2rem; text-align: center;
+      border-right: 1px solid rgba(212,145,58,0.1);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 6vw, 5.5rem);
+      font-weight: 300; color: var(--gold); line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    .stat-rule {
+      width: 30px; height: 1px; background: var(--gold);
+      margin: 1rem auto;
+    }
+    .stat-label {
+      font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--ink-subtle);
+    }
+
+    /* ── Team ── */
+    #team { background: var(--cream); padding: 8rem 2rem; }
+    .team-inner { max-width: 1320px; margin: 0 auto; }
+    .team-header { margin-bottom: 4rem; }
+    .team-header-row {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem;
+    }
+    .team-header h2 { color: var(--ink); }
+    .team-header-blurb {
+      font-size: 1rem; line-height: 1.85; font-weight: 300;
+      color: var(--ink-muted); max-width: 400px;
+    }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 2.25rem;
+    }
+    .tcard { }
+    .tcard-img-wrap {
+      position: relative; overflow: hidden;
+      aspect-ratio: 3/4; margin-bottom: 1.125rem;
+      background: var(--gold-pale);
+    }
+    .tcard-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(20%) sepia(15%);
+      transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                  filter 0.4s ease;
+      display: block;
+    }
+    .tcard:hover .tcard-img-wrap img {
+      transform: scale(1.04);
+      filter: grayscale(0%) sepia(8%);
+    }
+    .tcard-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(26,16,5,0.55) 0%, transparent 50%);
+    }
+    .tcard h4 {
+      font-size: 1.125rem; font-weight: 600;
+      color: var(--ink); margin-bottom: 4px; line-height: 1.2;
+    }
+    .tcard-role {
+      font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.13em; text-transform: uppercase; color: var(--gold);
+    }
+
+    /* ── Contact ── */
+    #contact {
+      background: var(--ink); padding: 8rem 2rem;
+      position: relative; overflow: hidden;
+    }
+    .contact-bg-logo {
+      position: absolute; left: -8%; top: 50%;
+      transform: translateY(-50%);
+      width: clamp(320px, 46vw, 700px);
+      opacity: 0.04; filter: invert(1); pointer-events: none;
+    }
+    .contact-inner {
+      max-width: 1320px; margin: 0 auto; position: relative; z-index: 2;
+      display: grid; grid-template-columns: 1fr 1.25fr; gap: 7rem; align-items: start;
+    }
+    @media (max-width: 900px) { .contact-inner { grid-template-columns: 1fr; gap: 4rem; } }
+    h2.contact-info { color: var(--cream); }
+    h2.contact-info em { color: var(--gold); font-style: italic; }
+    .contact-blurb {
+      font-size: 1.0625rem; line-height: 1.9; font-weight: 300;
+      color: rgba(253,248,241,0.48); margin: 1.5rem 0 3rem;
+    }
+    .contact-detail {
+      display: flex; gap: 1rem; align-items: flex-start;
+      margin-bottom: 1.625rem;
+    }
+    .contact-detail:last-child { margin-bottom: 0; }
+    .contact-icon {
+      width: 38px; height: 38px; flex-shrink: 0;
+      border: 1px solid rgba(212,145,58,0.25);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .contact-detail-label {
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 5px;
+    }
+    .contact-detail-value {
+      font-size: 1rem; color: rgba(253,248,241,0.75);
+      text-decoration: none; font-weight: 300;
+      transition: color 0.25s;
+    }
+    a.contact-detail-value:hover { color: var(--gold); }
+
+    /* Form */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group:last-of-type { margin-bottom: 0; }
+    .form-label {
+      display: block;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 7px;
+    }
+    .form-control {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(212,145,58,0.18);
+      color: var(--cream);
+      padding: 13px 15px;
+      font-family: 'Outfit', sans-serif; font-size: 1rem;
+      font-weight: 300;
+      outline: none;
+      transition: border-color 0.3s ease, background 0.3s ease;
+      -webkit-appearance: none;
+    }
+    .form-control::placeholder { color: rgba(212,145,58,0.32); }
+    .form-control:focus {
+      border-color: var(--gold);
+      background: rgba(212,145,58,0.06);
+    }
+    .form-control:focus-visible { outline: none; }
+    .form-control.invalid { border-color: #c0392b; background: rgba(192,57,43,0.07); }
+    .field-error { font-size: 0.7rem; color: #c0392b; margin-top: 5px; display: none; }
+    .field-error.visible { display: block; }
+    textarea.form-control { resize: vertical; min-height: 126px; }
+    select.form-control {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23D4913A' stroke-width='1.5'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
+    }
+    select.form-control option { background: #1A1005; }
+    .form-submit {
+      width: 100%; margin-top: 1.75rem;
+      cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+    }
+
+    /* ── Footer ── */
+    #footer {
+      background: var(--ink-mid);
+      border-top: 1px solid rgba(212,145,58,0.1);
+      padding: 3.5rem 2rem;
+    }
+    .footer-inner { max-width: 1320px; margin: 0 auto; }
+    .footer-top {
+      display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+    .footer-nav { display: flex; gap: 2.25rem; flex-wrap: wrap; }
+    .footer-link {
+      font-size: 0.82rem; font-weight: 400;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(253,248,241,0.35); text-decoration: none;
+      transition: color 0.25s;
+    }
+    .footer-link:hover { color: var(--gold); }
+    .footer-langs { display: flex; align-items: center; gap: 8px; }
+    .footer-bottom {
+      display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .footer-copy {
+      font-size: 0.82rem; color: rgba(253,248,241,0.22); font-weight: 300;
+    }
+    .footer-countries {
+      font-size: 0.75rem; letter-spacing: 0.08em;
+      color: rgba(253,248,241,0.14); font-weight: 300;
+    }
+
+    /* ── Coverage Map ── */
+    #coverage { background: var(--cream); padding: 8rem 2rem; }
+    .coverage-inner { max-width: 1320px; margin: 0 auto; }
+    .coverage-header { text-align: center; margin-bottom: 4rem; }
+    .coverage-header h2 { color: var(--ink); margin-top: 1rem; }
+    .coverage-header h2 em { color: var(--gold); font-style: italic; }
+    .coverage-header .gold-rule { max-width: 260px; margin: 1.75rem auto 0; }
+    .map-frame {
+      position: relative;
+      border: 1px solid rgba(212,145,58,0.2);
+      box-shadow: 0 8px 64px rgba(26,16,5,0.08), 0 2px 16px rgba(212,145,58,0.06);
+      overflow: hidden;
+    }
+    #region-map {
+      height: clamp(320px, 42vw, 520px);
+      width: 100%;
+      filter: sepia(0.22) saturate(0.82) hue-rotate(4deg) brightness(0.97) contrast(0.96);
+    }
+    .leaflet-control-zoom { display: none !important; }
+    .leaflet-control-attribution { display: none !important; }
+    .leaflet-container { background: #f5ede1 !important; font-family: 'Outfit', sans-serif !important; }
+    .map-marker-wrap { position: relative; width: 24px; height: 24px; cursor: pointer; }
+    .map-marker-pulse {
+      position: absolute; inset: -2px; border-radius: 50%;
+      border: 1px solid rgba(212,145,58,0.55);
+      animation: map-pulse 2.6s cubic-bezier(0.4,0,0.6,1) infinite;
+    }
+    .map-marker-pulse-2 { animation-delay: 0.87s; }
+    .map-marker-pulse-3 { animation-delay: 1.74s; }
+    @keyframes map-pulse {
+      0%   { transform: scale(0.5); opacity: 0.85; }
+      100% { transform: scale(2.4); opacity: 0; }
+    }
+    .map-marker-core {
+      position: absolute; top: 50%; left: 50%;
+      width: 9px; height: 9px;
+      background: var(--gold);
+      transform: translate(-50%,-50%) rotate(45deg);
+      box-shadow: 0 0 12px rgba(212,145,58,0.75), 0 0 4px rgba(212,145,58,0.5);
+      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    .map-marker-wrap:hover .map-marker-core {
+      transform: translate(-50%,-50%) rotate(45deg) scale(1.5);
+    }
+    .leaflet-tooltip.map-tip {
+      background: var(--ink); border: 1px solid rgba(212,145,58,0.35);
+      border-radius: 0; color: var(--cream);
+      font-family: 'Outfit', sans-serif; font-size: 0.72rem;
+      font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+      padding: 6px 12px; white-space: nowrap;
+      box-shadow: 0 6px 24px rgba(26,16,5,0.28);
+    }
+    .leaflet-tooltip.map-tip::before { border-top-color: rgba(212,145,58,0.35) !important; }
+
+    /* ── FAQ ── */
+    .faq-section {
+      background: var(--cream);
+      padding: 7rem 2rem;
+      border-top: 1px solid rgba(212,145,58,0.12);
+    }
+    .faq-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .faq-header { margin-bottom: 3.5rem; }
+
+    .faq-list { display: flex; flex-direction: column; }
+    .faq-item {
+      border-top: 1px solid rgba(212,145,58,0.16);
+    }
+    .faq-item:last-child { border-bottom: 1px solid rgba(212,145,58,0.16); }
+
+    .faq-q {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      padding: 1.625rem 0;
+      background: none; border: none; cursor: pointer; text-align: left;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.1875rem; font-weight: 600;
+      color: var(--ink); letter-spacing: -0.01em;
+      transition: color 0.2s ease;
+    }
+    .faq-q:hover { color: var(--gold-dark); }
+    .faq-q:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 2px; }
+
+    .faq-icon {
+      flex-shrink: 0; margin-left: 2rem;
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1px solid rgba(212,145,58,0.35);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold); font-size: 1rem; font-weight: 300;
+      font-family: 'Outfit', sans-serif; line-height: 1;
+      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
+                  background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+      background: var(--gold); color: var(--cream);
+      border-color: var(--gold);
+    }
+
+    .faq-a {
+      overflow: hidden; max-height: 0;
+      transition: max-height 0.45s cubic-bezier(0.22,1,0.36,1);
+    }
+    .faq-item.open .faq-a { max-height: 300px; }
+    .faq-a p {
+      padding-bottom: 1.75rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9375rem; font-weight: 300;
+      color: var(--ink-muted); line-height: 1.8;
+      max-width: 720px;
+    }
+
+    /* ── Loading Screen ── */
+    #loader {
+      position: fixed; inset: 0; z-index: 10000;
+      background: #120D04;
+      display: flex; align-items: center; justify-content: center;
+      will-change: transform;
+      transition: transform 1s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    #loader.loader-exit { transform: translateY(-100%); }
+
+    .loader-glow {
+      position: absolute;
+      width: 560px; height: 560px; border-radius: 50%;
+      background: radial-gradient(circle at center,
+        rgba(212,145,58,0.13) 0%, rgba(212,145,58,0.05) 40%, transparent 70%);
+      animation: ldrGlow 4s ease-in-out infinite;
+    }
+    @keyframes ldrGlow {
+      0%,100% { transform: scale(1); opacity: 0.7; }
+      50%      { transform: scale(1.15); opacity: 1; }
+    }
+
+    .loader-body {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center;
+      animation: ldrIn 0.9s cubic-bezier(0.22,1,0.36,1) 0.15s both;
+    }
+    @keyframes ldrIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .loader-emblem {
+      width: 76px; height: 76px; margin-bottom: 22px;
+      filter: drop-shadow(0 0 18px rgba(212,145,58,0.45))
+              drop-shadow(0 0 40px rgba(212,145,58,0.18));
+    }
+
+    .loader-rule {
+      width: 1px; height: 28px;
+      background: linear-gradient(to bottom, transparent, rgba(212,145,58,0.5), transparent);
+      margin-bottom: 16px;
+      animation: ldrRuleIn 0.6s ease 0.7s both;
+    }
+    @keyframes ldrRuleIn { from { opacity:0; transform: scaleY(0); } to { opacity:1; transform:scaleY(1); } }
+
+    .loader-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.375rem; font-weight: 600;
+      letter-spacing: 0.28em; text-transform: uppercase;
+      color: #F0D9B5;
+      animation: ldrTextIn 0.7s ease 0.55s both;
+    }
+    .loader-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.625rem; font-weight: 300;
+      letter-spacing: 0.38em; text-transform: uppercase;
+      color: rgba(212,145,58,0.6);
+      margin-top: 7px; margin-bottom: 36px;
+      animation: ldrTextIn 0.7s ease 0.7s both;
+    }
+    @keyframes ldrTextIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+    .loader-track {
+      width: 180px; height: 1px;
+      background: rgba(212,145,58,0.18);
+      position: relative; overflow: hidden;
+    }
+    .loader-fill {
+      position: absolute; left:0; top:0; bottom:0;
+      background: linear-gradient(90deg, #A86C1E 0%, #D4913A 55%, #E8B571 100%);
+      animation: ldrFill 2s cubic-bezier(0.22,1,0.36,1) 0.9s both;
+      width: 0%;
+    }
+    @keyframes ldrFill { from { width: 0%; } to { width: 72%; } }
+    .loader-fill.complete {
+      animation: none !important;
+      width: 100% !important;
+      transition: width 0.35s cubic-bezier(0.22,1,0.36,1) !important;
+    }
+
+    /* corner brackets */
+    .ldr-c {
+      position: absolute; width: 36px; height: 36px;
+      border-color: rgba(212,145,58,0.22); border-style: solid;
+      animation: ldrCornersIn 1.2s ease 0.3s both;
+    }
+    @keyframes ldrCornersIn { from { opacity:0; } to { opacity:1; } }
+    .ldr-c.tl { top:28px; left:28px; border-width: 1px 0 0 1px; }
+    .ldr-c.tr { top:28px; right:28px; border-width: 1px 1px 0 0; }
+    .ldr-c.bl { bottom:28px; left:28px; border-width: 0 0 1px 1px; }
+    .ldr-c.br { bottom:28px; right:28px; border-width: 0 1px 1px 0; }
+
+    /* grain on loader */
+    #loader::after {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.035;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ LOADING SCREEN ══════════════ -->
+<div id="loader" aria-hidden="true">
+  <div class="loader-glow"></div>
+  <div class="ldr-c tl"></div>
+  <div class="ldr-c tr"></div>
+  <div class="ldr-c bl"></div>
+  <div class="ldr-c br"></div>
+  <div class="loader-body">
+    <img src="brand_assests/logo.png" alt="" class="loader-emblem">
+    <div class="loader-rule"></div>
+    <div class="loader-name">Astra Solutions</div>
+    <div class="loader-sub">Law Firm</div>
+    <div class="loader-track">
+      <div class="loader-fill" id="loaderFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ NAV ══════════════ -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <img src="brand_assests/logo.png" alt="Astra Solutions logo" class="nav-logo-img">
+      <div class="nav-wordmark">
+        <div class="nav-wordmark-name">Astra Solutions</div>
+        <div class="nav-wordmark-sub" data-i18n="nav_wordmark_sub"></div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#services" class="nav-link" data-i18n="nav_services">Services</a>
+      <a href="#team" class="nav-link" data-i18n="nav_team">Team</a>
+      <a href="#contact" class="nav-link" data-i18n="nav_contact">Contact</a>
+      <a href="faq.html" class="nav-link" data-i18n="nav_faq">FAQ</a>
+      <div class="nav-sep"></div>
+      <a href="#" class="nav-lang active lang-btn" data-lang="en">EN</a>
+      <span style="color:var(--gold-pale);font-size:0.6rem;">|</span>
+      <a href="#" class="nav-lang inactive lang-btn" data-lang="ru">RU</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M4 7h18M4 13h18M4 19h18"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" role="dialog" aria-modal="true" aria-label="Navigation">
+  <button class="mobile-close" id="mobile-close" aria-label="Close menu">
+    <svg width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <path d="M7 7l16 16M23 7L7 23"/>
+    </svg>
+  </button>
+  <img src="brand_assests/logo.png" alt="" style="height:56px;opacity:.3;filter:invert(1);margin-bottom:0.5rem;">
+  <a href="#services" class="mobile-nav-link" data-mobile-link data-i18n="nav_services">Services</a>
+  <a href="#team" class="mobile-nav-link" data-mobile-link data-i18n="nav_team">Team</a>
+  <a href="#contact" class="mobile-nav-link" data-mobile-link data-i18n="nav_contact">Contact</a>
+  <a href="faq.html" class="mobile-nav-link" data-mobile-link data-i18n="nav_faq">FAQ</a>
+  <div style="display:flex;gap:16px;margin-top:1rem;">
+    <a href="#" class="nav-lang active lang-btn" data-lang="en" style="font-size:.9rem;">EN</a>
+    <a href="#" class="nav-lang inactive lang-btn" data-lang="ru" style="font-size:.9rem;">RU</a>
+  </div>
+</div>
+
+
+<!-- ══════════════ HERO ══════════════ -->
+<section id="hero">
+  <img src="brand_assests/logo.png" class="hero-bg-logo" alt="">
+  <div class="hero-glow"></div>
+  <div class="hero-bottom-fade"></div>
+
+  <div class="hero-inner">
+    <div class="hero-tag-row reveal" id="hero-tag">
+      <div class="hero-tag-line"></div>
+      <span class="section-tag" data-i18n="hero_tag">Boutique IP Law Firm</span>
+    </div>
+
+    <h1 class="display-xl hero-h1 reveal" data-delay="1" data-i18n="hero_h1">
+      Protecting<br><em>Ideas.</em><br>Building Value.
+    </h1>
+
+    <p class="hero-sub reveal" data-delay="2" data-i18n="hero_sub">
+      Astra Solutions is a dynamically developing boutique law firm specialising in intellectual property, business consulting, and dispute resolution across Central Asia and beyond.
+    </p>
+
+    <div class="hero-cta reveal" data-delay="3">
+      <a href="#services" class="btn-primary">
+        <span data-i18n="hero_btn_services">Our Services</span>
+        <span>&#8594;</span>
+      </a>
+      <a href="#contact" class="btn-ghost" data-i18n="hero_btn_contact">Get in Touch</a>
+    </div>
+
+    <div class="hero-countries reveal" data-delay="4">
+      <div class="hero-countries-label" data-i18n="hero_countries_label">Operating in</div>
+      <div class="country-list">
+        <span class="country-item" data-i18n="country_kz">Kazakhstan</span>
+        <span class="country-item" data-i18n="country_kg">Kyrgyzstan</span>
+        <span class="country-item" data-i18n="country_uz">Uzbekistan</span>
+        <span class="country-item" data-i18n="country_tm">Turkmenistan</span>
+        <span class="country-item" data-i18n="country_tj">Tajikistan</span>
+        <span class="country-item" data-i18n="country_az">Azerbaijan</span>
+        <span class="country-item" data-i18n="country_am">Armenia</span>
+        <span class="country-item" data-i18n="country_ge">Georgia</span>
+        <span class="country-item" data-i18n="country_md">Moldova</span>
+        <span class="country-item" data-i18n="country_mn">Mongolia</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ ABOUT ══════════════ -->
+<section id="about">
+  <div class="about-inner">
+    <div class="about-quote reveal">
+      <blockquote data-i18n="about_quote">
+        "Smart solutions for your business — with the precision of specialists and the vision of strategists."
+      </blockquote>
+      <div class="about-quote-attr">
+        <div class="gold-dash"></div>
+        <span>Astra Solutions</span>
+      </div>
+    </div>
+
+    <div class="about-text reveal" data-delay="1">
+      <div class="section-tag" style="margin-bottom:1rem;" data-i18n="about_tag">About the Firm</div>
+      <h2 class="display-md" style="color:var(--ink);margin-bottom:1.5rem;" data-i18n="about_heading">Boutique expertise.<br>International reach.</h2>
+      <p data-i18n="about_p1">
+        Astra Solutions is a dynamically developing boutique law firm providing comprehensive legal services in intellectual property, business consulting, and dispute resolution.
+      </p>
+      <p data-i18n="about_p2">
+        Our team combines deep local expertise with international experience, advising clients across Kazakhstan and nine neighbouring jurisdictions — from Kyrgyzstan and Uzbekistan to Georgia and Mongolia.
+      </p>
+      <p data-i18n="about_p3">
+        We deliver tailored, commercially-minded advice that protects and grows what matters most: the ideas, assets, and ambitions of our clients.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SERVICES ══════════════ -->
+<section id="services">
+  <div class="services-inner">
+    <div class="services-header reveal">
+      <div class="section-tag" data-i18n="services_tag">What We Do</div>
+      <h2 class="display-lg" data-i18n="services_heading">Our Practice Areas</h2>
+      <div class="gold-rule"></div>
+    </div>
+
+    <div class="services-grid">
+
+      <!-- IP -->
+      <div class="scard reveal">
+        <div class="scard-top">
+          <div class="scard-icon">
+            <img src="brand_assests/logo.png" alt="" style="width:24px;height:24px;filter:sepia(1) saturate(3) hue-rotate(-5deg);">
+          </div>
+          <span class="scard-num">01</span>
+        </div>
+        <h3 data-i18n="ip_title">Intellectual<br>Property</h3>
+        <p class="scard-desc" data-i18n="ip_desc">We advise on all aspects of contentious and non-contentious IP law — from strategy and registration to enforcement and due diligence.</p>
+        <div class="scard-divider"></div>
+        <ul class="scard-list">
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="ip_li1">Trademarks — portfolio management, search &amp; clearance, national &amp; international registrations, renewals, well-known trademark registrations, oppositions</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="ip_li2">Patents — search, application drafting, filing, annuities, recordation of assignments &amp; licences</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="ip_li3">Copyright — registration, licence contracts, due diligence</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="ip_li4">Domain names — registration, infringement procedures</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="ip_li5">Customs recordation, anti-counterfeiting &amp; IP due diligence</span></li>
+        </ul>
+        <a href="#contact" class="btn-outline-sm" data-i18n="enquire">Enquire &#8594;</a>
+      </div>
+
+      <!-- Business Consulting -->
+      <div class="scard reveal" data-delay="1">
+        <div class="scard-top">
+          <div class="scard-icon">
+            <svg width="22" height="22" fill="none" stroke="#D4913A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="4" rx="1"/>
+              <rect x="2" y="10" width="20" height="4" rx="1"/>
+              <rect x="2" y="17" width="20" height="4" rx="1"/>
+            </svg>
+          </div>
+          <span class="scard-num">02</span>
+        </div>
+        <h3 data-i18n="bc_title">Business<br>Consulting</h3>
+        <p class="scard-desc" data-i18n="bc_desc">Substantive, jurisdictional, and commercial expertise to help your business establish, analyse, and grow in new markets.</p>
+        <div class="scard-divider"></div>
+        <ul class="scard-list">
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="bc_li1">New company registration in Kazakhstan</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="bc_li2">Feasibility studies — scope, opportunity &amp; risk analysis</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="bc_li3">Business analysis, market research &amp; competitor analysis</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="bc_li4">Marketing plans &amp; business plans (P&amp;L, cash-flow, descriptions)</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="bc_li5">Core strategies &amp; expert recommendations</span></li>
+        </ul>
+        <a href="#contact" class="btn-outline-sm" data-i18n="enquire">Enquire &#8594;</a>
+      </div>
+
+      <!-- Dispute Resolution -->
+      <div class="scard reveal" data-delay="2">
+        <div class="scard-top">
+          <div class="scard-icon">
+            <svg width="22" height="22" fill="none" stroke="#D4913A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="scard-num">03</span>
+        </div>
+        <h3 data-i18n="dr_title">Dispute<br>Resolution</h3>
+        <p class="scard-desc" data-i18n="dr_desc">We help clients choose the best path to resolution and provide comprehensive support at every stage of the process.</p>
+        <div class="scard-divider"></div>
+        <ul class="scard-list">
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="dr_li1">Mediation procedures</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="dr_li2">Local &amp; international arbitration</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="dr_li3">Pretrial proceedings — local &amp; international</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="dr_li4">Local civil litigation</span></li>
+          <li><span class="scard-bullet">&#9670;</span><span data-i18n="dr_li5">International civil litigation</span></li>
+        </ul>
+        <a href="#contact" class="btn-outline-sm" data-i18n="enquire">Enquire &#8594;</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ STATS ══════════════ -->
+<section id="stats">
+  <img src="brand_assests/logo.png" class="stats-bg-logo" alt="">
+  <div class="stats-inner">
+    <div class="stats-header reveal">
+      <div class="section-tag" data-i18n="stats_tag">Our Work in Numbers</div>
+      <h2 class="display-md serif" data-i18n="stats_heading">A record of results.</h2>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-cell reveal">
+        <div class="stat-num" id="s1">0</div>
+        <div class="stat-rule"></div>
+        <div class="stat-label" data-i18n="stat_label1">Registrations</div>
+      </div>
+      <div class="stat-cell reveal" data-delay="1">
+        <div class="stat-num" id="s2">0</div>
+        <div class="stat-rule"></div>
+        <div class="stat-label" data-i18n="stat_label2">Renewals &amp; Annuities</div>
+      </div>
+      <div class="stat-cell reveal" data-delay="2">
+        <div class="stat-num" id="s3">0</div>
+        <div class="stat-rule"></div>
+        <div class="stat-label" data-i18n="stat_label3">Countries Served</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ COVERAGE MAP ══════════════ -->
+<section id="coverage">
+  <div class="coverage-inner">
+    <div class="coverage-header reveal">
+      <div class="section-tag" data-i18n="map_tag">Our Reach</div>
+      <h2 class="display-lg" data-i18n="map_heading">Operating across<br><em>10 jurisdictions.</em></h2>
+      <div class="gold-rule"></div>
+    </div>
+    <div class="map-frame reveal" data-delay="1">
+      <div id="region-map"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ TEAM ══════════════ -->
+<section id="team">
+  <div class="team-inner">
+    <div class="team-header reveal">
+      <div class="section-tag" style="margin-bottom:1rem;" data-i18n="team_tag">The People Behind the Work</div>
+      <div class="team-header-row">
+        <h2 class="display-lg" data-i18n="team_heading">Our Team</h2>
+        <p class="team-header-blurb" data-i18n="team_blurb">Professionals with local and international experience in intellectual property, business development, civil litigation, and arbitration.</p>
+      </div>
+      <div class="gold-rule"></div>
+    </div>
+
+    <div class="team-grid">
+      <div class="tcard reveal">
+        <div class="tcard-img-wrap">
+          <img src="https://placehold.co/280x373/D4913A/FDF8F1?text=AS" alt="Arseniy Sidorov">
+          <div class="tcard-overlay"></div>
+        </div>
+        <h4>Arseniy Sidorov</h4>
+        <p class="tcard-role" data-i18n="role_managing_director">Managing Director</p>
+      </div>
+      <div class="tcard reveal" data-delay="1">
+        <div class="tcard-img-wrap">
+          <img src="https://placehold.co/280x373/B07428/FDF8F1?text=GI" alt="Gulnara Ilyassova">
+          <div class="tcard-overlay"></div>
+        </div>
+        <h4>Gulnara Ilyassova</h4>
+        <p class="tcard-role" data-i18n="role_tm_patent">Trademark &amp; Patent Attorney</p>
+      </div>
+      <div class="tcard reveal" data-delay="2">
+        <div class="tcard-img-wrap">
+          <img src="https://placehold.co/280x373/8B5E2A/FDF8F1?text=EG" alt="Evgeniy Gritsenko">
+          <div class="tcard-overlay"></div>
+        </div>
+        <h4>Evgeniy Gritsenko</h4>
+        <p class="tcard-role" data-i18n="role_gp_counsel">General Practice Counsel</p>
+      </div>
+      <div class="tcard reveal" data-delay="3">
+        <div class="tcard-img-wrap">
+          <img src="https://placehold.co/280x373/A56E20/FDF8F1?text=TB" alt="Tair Buirakulov">
+          <div class="tcard-overlay"></div>
+        </div>
+        <h4>Tair Buirakulov</h4>
+        <p class="tcard-role" data-i18n="role_gp_of_counsel">General Practice Of Counsel</p>
+      </div>
+      <div class="tcard reveal" data-delay="4">
+        <div class="tcard-img-wrap">
+          <img src="https://placehold.co/280x373/C4813A/FDF8F1?text=LK" alt="Liya Kosheleva">
+          <div class="tcard-overlay"></div>
+        </div>
+        <h4>Liya Kosheleva</h4>
+        <p class="tcard-role" data-i18n="role_associate">Associate</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ CONTACT ══════════════ -->
+<section id="contact">
+  <img src="brand_assests/logo.png" class="contact-bg-logo" alt="">
+  <div class="contact-inner">
+
+    <!-- Info side -->
+    <div class="reveal">
+      <div class="section-tag" style="margin-bottom:1.25rem;" data-i18n="contact_tag">Get In Touch</div>
+      <h2 class="display-lg contact-info" data-i18n="contact_heading">Let's work<br><em>together.</em></h2>
+      <p class="contact-blurb" data-i18n="contact_blurb">
+        Should you have any questions about protecting your intellectual property, establishing a business in Kazakhstan, or resolving a dispute — we would be glad to hear from you.
+      </p>
+
+      <div class="contact-detail">
+        <div class="contact-icon">
+          <svg width="16" height="16" fill="none" stroke="#D4913A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 4l7 5 7-5M2 4h14v10H2V4z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="contact-detail-label" data-i18n="label_email">Email</div>
+          <a href="mailto:info@astra-solutions.kz" class="contact-detail-value">info@astra-solutions.kz</a>
+        </div>
+      </div>
+
+      <div class="contact-detail">
+        <div class="contact-icon">
+          <svg width="16" height="16" fill="none" stroke="#D4913A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3h4l1.5 3.5-2 1.5c1 2 2.5 3.5 4.5 4.5l1.5-2L16 12v4a1 1 0 01-1 1C5 17 1 9 1 4a1 1 0 011-1z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="contact-detail-label" data-i18n="label_phone">Phone</div>
+          <a href="tel:+77012288588" class="contact-detail-value">+7 701 228 8588</a>
+        </div>
+      </div>
+
+      <div class="contact-detail">
+        <div class="contact-icon">
+          <svg width="16" height="16" fill="none" stroke="#D4913A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 2C5.24 2 3 4.24 3 7c0 4 5 9 5 9s5-5 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 118 5a1.5 1.5 0 010 3z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="contact-detail-label" data-i18n="label_location">Location</div>
+          <span class="contact-detail-value" data-i18n="location_value">Kazakhstan, 050040, Almaty, Kapparov street, 9/10 building, 2 office</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form side -->
+    <div class="reveal" data-delay="1">
+      <form id="contact-form" novalidate>
+        <div class="form-row">
+          <div>
+            <label class="form-label" for="fname" data-i18n="form_fname">First Name</label>
+            <input type="text" id="fname" class="form-control" placeholder="John" data-i18n-placeholder="form_ph_fname" autocomplete="given-name">
+            <span class="field-error" id="err-fname">Required</span>
+          </div>
+          <div>
+            <label class="form-label" for="lname" data-i18n="form_lname">Last Name</label>
+            <input type="text" id="lname" class="form-control" placeholder="Smith" data-i18n-placeholder="form_ph_lname" autocomplete="family-name">
+            <span class="field-error" id="err-lname">Required</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email" data-i18n="form_email">Email Address</label>
+          <input type="email" id="email" class="form-control" placeholder="john@company.com" data-i18n-placeholder="form_ph_email" autocomplete="email">
+          <span class="field-error" id="err-email">Enter a valid email address</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="service" data-i18n="form_service">Area of Interest</label>
+          <select id="service" class="form-control">
+            <option value="" data-i18n="form_ph_service">Select a service…</option>
+            <option data-i18n="opt_ip">Intellectual Property</option>
+            <option data-i18n="opt_bc">Business Consulting</option>
+            <option data-i18n="opt_dr">Dispute Resolution</option>
+            <option data-i18n="opt_other">Other</option>
+          </select>
+          <span class="field-error" id="err-service">Please select an area of interest</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="message" data-i18n="form_message">Message</label>
+          <textarea id="message" class="form-control" rows="5" placeholder="Tell us about your matter…" data-i18n-placeholder="form_ph_message"></textarea>
+          <span class="field-error" id="err-message">Required</span>
+        </div>
+        <button type="submit" class="btn-primary form-submit">
+          <span data-i18n="form_submit">Send Message</span>
+          <span>&#8594;</span>
+        </button>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer id="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a href="#" class="nav-logo">
+        <img src="brand_assests/logo.png" alt="Astra Solutions" style="height:30px;width:30px;">
+        <div class="nav-wordmark">
+          <div class="nav-wordmark-name" style="color:var(--cream);">Astra Solutions</div>
+          <div class="nav-wordmark-sub" style="color:var(--gold);" data-i18n="nav_wordmark_sub"></div>
+        </div>
+      </a>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="#services" class="footer-link" data-i18n="nav_services">Services</a>
+        <a href="#team" class="footer-link" data-i18n="nav_team">Team</a>
+        <a href="#contact" class="footer-link" data-i18n="nav_contact">Contact</a>
+        <a href="faq.html" class="footer-link" data-i18n="nav_faq">FAQ</a>
+      </nav>
+      <div class="footer-langs">
+        <a href="#" class="nav-lang active lang-btn" data-lang="en" style="font-size:.72rem;">EN</a>
+        <span style="color:rgba(212,145,58,0.25);font-size:.6rem;">|</span>
+        <a href="#" class="nav-lang inactive lang-btn" data-lang="ru" style="font-size:.72rem;">RU</a>
+      </div>
+    </div>
+
+    <div class="gold-rule" style="opacity:.12;"></div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy" data-i18n="footer_copy">© 2026 Astra Solutions. All rights reserved.</p>
+      <p class="footer-countries">Kazakhstan · Kyrgyzstan · Uzbekistan · Turkmenistan · Tajikistan · Azerbaijan · Armenia · Georgia · Moldova · Mongolia</p>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+  // ══════════════ i18n ══════════════
+  const translations = {
+    en: {
+      page_title:        'Astra Solutions — Intellectual Property Law Firm',
+      nav_wordmark_sub:  '',
+      nav_services:      'Services',
+      nav_team:          'Team',
+      nav_contact:       'Contact',
+      nav_faq:           'FAQ',
+      hero_tag:          'Boutique IP Law Firm',
+      hero_h1:           'Protecting<br><em>Ideas.</em><br>Building Value.',
+      hero_sub:          'Astra Solutions is a dynamically developing boutique law firm specialising in intellectual property, business consulting, and dispute resolution across Central Asia and beyond.',
+      hero_btn_services: 'Our Services',
+      hero_btn_contact:  'Get in Touch',
+      hero_countries_label: 'Operating in',
+      country_kz: 'Kazakhstan', country_kg: 'Kyrgyzstan', country_uz: 'Uzbekistan',
+      country_tm: 'Turkmenistan', country_tj: 'Tajikistan', country_az: 'Azerbaijan',
+      country_am: 'Armenia', country_ge: 'Georgia', country_md: 'Moldova', country_mn: 'Mongolia',
+      about_quote:   '“Smart solutions for your business — with the precision of specialists and the vision of strategists.”',
+      about_tag:     'About the Firm',
+      about_heading: 'Boutique expertise.<br>International reach.',
+      about_p1: 'Astra Solutions is a dynamically developing boutique law firm providing comprehensive legal services in intellectual property, business consulting, and dispute resolution.',
+      about_p2: 'Our team combines deep local expertise with international experience, advising clients across Kazakhstan and nine neighbouring jurisdictions — from Kyrgyzstan and Uzbekistan to Georgia and Mongolia.',
+      about_p3: 'We deliver tailored, commercially-minded advice that protects and grows what matters most: the ideas, assets, and ambitions of our clients.',
+      services_tag:     'What We Do',
+      services_heading: 'Our Practice Areas',
+      ip_title: 'Intellectual<br>Property',
+      ip_desc:  'We advise on all aspects of contentious and non-contentious IP law — from strategy and registration to enforcement and due diligence.',
+      ip_li1: 'Trademarks — portfolio management, search &amp; clearance, national &amp; international registrations, renewals, well-known trademark registrations, oppositions',
+      ip_li2: 'Patents — search, application drafting, filing, annuities, recordation of assignments &amp; licences',
+      ip_li3: 'Copyright — registration, licence contracts, due diligence',
+      ip_li4: 'Domain names — registration, infringement procedures',
+      ip_li5: 'Customs recordation, anti-counterfeiting &amp; IP due diligence',
+      enquire: 'Enquire &#8594;',
+      bc_title: 'Business<br>Consulting',
+      bc_desc:  'Substantive, jurisdictional, and commercial expertise to help your business establish, analyse, and grow in new markets.',
+      bc_li1: 'New company registration in Kazakhstan',
+      bc_li2: 'Feasibility studies — scope, opportunity &amp; risk analysis',
+      bc_li3: 'Business analysis, market research &amp; competitor analysis',
+      bc_li4: 'Marketing plans &amp; business plans (P&amp;L, cash-flow, descriptions)',
+      bc_li5: 'Core strategies &amp; expert recommendations',
+      dr_title: 'Dispute<br>Resolution',
+      dr_desc:  'We help clients choose the best path to resolution and provide comprehensive support at every stage of the process.',
+      dr_li1: 'Mediation procedures',
+      dr_li2: 'Local &amp; international arbitration',
+      dr_li3: 'Pretrial proceedings — local &amp; international',
+      dr_li4: 'Local civil litigation',
+      dr_li5: 'International civil litigation',
+      stats_tag:     'Our Work in Numbers',
+      stats_heading: 'A record of results.',
+      stat_label1: 'Registrations',
+      stat_label2: 'Renewals &amp; Annuities',
+      stat_label3: 'Countries Served',
+      map_tag: 'Our Reach',
+      map_heading: 'Operating across<br><em>10 jurisdictions.</em>',
+      team_tag:     'The People Behind the Work',
+      team_heading: 'Our Team',
+      team_blurb:   'Professionals with local and international experience in intellectual property, business development, civil litigation, and arbitration.',
+      role_managing_director: 'Managing Director',
+      role_tm_patent:         'Trademark &amp; Patent Attorney',
+      role_gp_counsel:        'General Practice Counsel',
+      role_gp_of_counsel:     'General Practice Of Counsel',
+      role_associate:         'Associate',
+      contact_tag:     'Get In Touch',
+      contact_heading: 'Let’s work<br><em>together.</em>',
+      contact_blurb:   'Should you have any questions about protecting your intellectual property, establishing a business in Kazakhstan, or resolving a dispute — we would be glad to hear from you.',
+      label_email:    'Email',
+      label_phone:    'Phone',
+      label_location: 'Location',
+      location_value: 'Kazakhstan, 050040, Almaty, Kapparov street, 9/10 building, 2 office',
+      form_fname:   'First Name',
+      form_lname:   'Last Name',
+      form_email:   'Email Address',
+      form_service: 'Area of Interest',
+      form_message: 'Message',
+      form_ph_fname:   'John',
+      form_ph_lname:   'Smith',
+      form_ph_email:   'john@company.com',
+      form_ph_service: 'Select a service…',
+      form_ph_message: 'Tell us about your matter…',
+      opt_ip:    'Intellectual Property',
+      opt_bc:    'Business Consulting',
+      opt_dr:    'Dispute Resolution',
+      opt_other: 'Other',
+      form_submit: 'Send Message',
+      form_sent:   'Message Sent ✓',
+      faq_tag:     'Frequently Asked',
+      faq_heading: 'Common Questions.',
+      faq_q1: 'What areas of law do you specialise in?',
+      faq_a1: 'We specialise in intellectual property (trademarks, patents, copyright, and domain names), business consulting, and dispute resolution. Our team advises on both contentious and non-contentious matters across all 10 jurisdictions we cover.',
+      faq_q2: 'Which countries do you operate in?',
+      faq_a2: 'We operate across 10 jurisdictions — Kazakhstan, Kyrgyzstan, Uzbekistan, Turkmenistan, Tajikistan, Azerbaijan, Armenia, Georgia, Moldova, and Mongolia. Our local knowledge in each market sets us apart from general international firms.',
+      faq_q3: 'How long does trademark registration take?',
+      faq_a3: 'Timelines vary by jurisdiction. In Kazakhstan, trademark registration typically takes 12–18 months, covering preliminary search, application filing, and examination. We manage the entire process on your behalf and keep you updated at every stage.',
+      faq_q4: 'Do you work with foreign companies?',
+      faq_a4: 'Yes. We regularly advise multinational companies, international brands, and individual innovators entering or operating in Central Asian markets. We work fluently in both English and Russian.',
+      faq_q5: 'Can you protect our brand across multiple countries at once?',
+      faq_a5: 'Yes. We handle both national registrations in each jurisdiction and international filings through the Madrid System for trademarks. We\'ll advise the most efficient route based on your budget and target markets.',
+      faq_q6: 'How do I get started?',
+      faq_a6: 'Simply reach out via our contact form or email. We\'ll arrange a consultation to understand your needs and outline a clear, practical path forward — with no obligation.',
+      footer_copy: '© 2026 Astra Solutions. All rights reserved.',
+    },
+    ru: {
+      page_title:        'Astra Solutions — Юридическая фирма по интеллектуальной собственности',
+      nav_wordmark_sub:  '',
+      nav_services:      'Услуги',
+      nav_team:          'Команда',
+      nav_contact:       'Контакты',
+      nav_faq:           'FAQ',
+      hero_tag:          'Бутиковая юридическая фирма',
+      hero_h1:           'Защищаем<br><em>идеи.</em><br>Создаём ценность.',
+      hero_sub:          'Astra Solutions — динамично развивающаяся бутиковая юридическая фирма, специализирующаяся на интеллектуальной собственности, бизнес-консалтинге и разрешении споров в Центральной Азии и за её пределами.',
+      hero_btn_services: 'Наши услуги',
+      hero_btn_contact:  'Написать нам',
+      hero_countries_label: 'Работаем в',
+      country_kz: 'Казахстан', country_kg: 'Кыргызстан', country_uz: 'Узбекистан',
+      country_tm: 'Туркменистан', country_tj: 'Таджикистан', country_az: 'Азербайджан',
+      country_am: 'Армения', country_ge: 'Грузия', country_md: 'Молдова', country_mn: 'Монголия',
+      about_quote:   '«Умные решения для вашего бизнеса — с точностью специалистов и видением стратегов.»',
+      about_tag:     'О фирме',
+      about_heading: 'Бутиковая экспертиза.<br>Международный охват.',
+      about_p1: 'Astra Solutions — динамично развивающаяся бутиковая юридическая фирма, предоставляющая комплексные юридические услуги в области интеллектуальной собственности, бизнес-консалтинга и разрешения споров.',
+      about_p2: 'Наша команда сочетает глубокую местную экспертизу с международным опытом, консультируя клиентов в Казахстане и девяти соседних юрисдикциях — от Кыргызстана и Узбекистана до Грузии и Монголии.',
+      about_p3: 'Мы предоставляем индивидуальные, коммерчески ориентированные консультации, которые защищают и развивают самое важное: идеи, активы и амбиции наших клиентов.',
+      services_tag:     'Что мы делаем',
+      services_heading: 'Наши практики',
+      ip_title: 'Интеллектуальная<br>собственность',
+      ip_desc:  'Мы консультируем по всем аспектам спорного и неспорного права в сфере интеллектуальной собственности — от стратегии и регистрации до защиты прав и due diligence.',
+      ip_li1: 'Товарные знаки — управление портфелем, поиск и проверка, национальная и международная регистрация, продление, регистрация общеизвестных товарных знаков, возражения',
+      ip_li2: 'Патенты — поиск, составление заявок, подача, поддержание в силе, регистрация уступок и лицензий',
+      ip_li3: 'Авторское право — регистрация, лицензионные договоры, due diligence',
+      ip_li4: 'Доменные имена — регистрация, процедуры по нарушениям',
+      ip_li5: 'Таможенная регистрация, борьба с контрафактом и due diligence в сфере ИС',
+      enquire: 'Узнать подробнее &#8594;',
+      bc_title: 'Бизнес-<br>консалтинг',
+      bc_desc:  'Предметная, юрисдикционная и коммерческая экспертиза для помощи вашему бизнесу в создании, анализе и росте на новых рынках.',
+      bc_li1: 'Регистрация новых компаний в Казахстане',
+      bc_li2: 'Технико-экономическое обоснование — анализ объёма, возможностей и рисков',
+      bc_li3: 'Бизнес-анализ, исследование рынка и конкурентный анализ',
+      bc_li4: 'Маркетинговые и бизнес-планы (P&amp;L, денежные потоки, описания)',
+      bc_li5: 'Ключевые стратегии и экспертные рекомендации',
+      dr_title: 'Разрешение<br>споров',
+      dr_desc:  'Мы помогаем клиентам выбрать оптимальный путь к разрешению спора и обеспечиваем комплексную поддержку на каждом этапе процесса.',
+      dr_li1: 'Медиационные процедуры',
+      dr_li2: 'Местный и международный арбитраж',
+      dr_li3: 'Досудебные разбирательства — местные и международные',
+      dr_li4: 'Местные гражданские дела',
+      dr_li5: 'Международные гражданские дела',
+      stats_tag:     'Наша работа в цифрах',
+      stats_heading: 'Результаты говорят сами за себя.',
+      stat_label1: 'Регистраций',
+      stat_label2: 'Продлений и пошлин',
+      stat_label3: 'Стран охвата',
+      map_tag: 'Наш охват',
+      map_heading: 'Работаем в<br><em>10 юрисдикциях.</em>',
+      team_tag:     'Люди за нашей работой',
+      team_heading: 'Наша команда',
+      team_blurb:   'Специалисты с местным и международным опытом в области интеллектуальной собственности, развития бизнеса, гражданского судопроизводства и арбитража.',
+      role_managing_director: 'Управляющий директор',
+      role_tm_patent:         'Поверенный по товарным знакам и патентам',
+      role_gp_counsel:        'Советник общей практики',
+      role_gp_of_counsel:     'Советник общей практики',
+      role_associate:         'Юрист',
+      contact_tag:     'Связаться с нами',
+      contact_heading: 'Давайте работать<br><em>вместе.</em>',
+      contact_blurb:   'Если у вас есть вопросы о защите интеллектуальной собственности, открытии бизнеса в Казахстане или разрешении спора — мы будем рады вас услышать.',
+      label_email:    'Электронная почта',
+      label_phone:    'Телефон',
+      label_location: 'Местоположение',
+      location_value: 'Казахстан, 050040, Алматы, улица Каппарова, здание 9/10, офис 2',
+      form_fname:   'Имя',
+      form_lname:   'Фамилия',
+      form_email:   'Адрес электронной почты',
+      form_service: 'Область интереса',
+      form_message: 'Сообщение',
+      form_ph_fname:   'Иван',
+      form_ph_lname:   'Иванов',
+      form_ph_email:   'ivan@company.com',
+      form_ph_service: 'Выберите услугу…',
+      form_ph_message: 'Расскажите нам о вашем деле…',
+      opt_ip:    'Интеллектуальная собственность',
+      opt_bc:    'Бизнес-консалтинг',
+      opt_dr:    'Разрешение споров',
+      opt_other: 'Другое',
+      form_submit: 'Отправить сообщение',
+      form_sent:   'Сообщение отправлено ✓',
+      faq_tag:     'Часто задаваемые вопросы',
+      faq_heading: 'Вопросы и ответы.',
+      faq_q1: 'На чём специализируется Astra Solutions?',
+      faq_a1: 'Мы специализируемся на интеллектуальной собственности (товарные знаки, патенты, авторское право, доменные имена), бизнес-консалтинге и разрешении споров. Наша команда консультирует по спорным и неспорным вопросам во всех 10 юрисдикциях.',
+      faq_q2: 'В каких странах вы работаете?',
+      faq_a2: 'Мы работаем в 10 юрисдикциях — Казахстан, Кыргызстан, Узбекистан, Туркменистан, Таджикистан, Азербайджан, Армения, Грузия, Молдова и Монголия. Глубокое знание местных рынков отличает нас от крупных международных фирм.',
+      faq_q3: 'Сколько времени занимает регистрация товарного знака?',
+      faq_a3: 'Сроки зависят от юрисдикции. В Казахстане регистрация товарного знака занимает, как правило, 12–18 месяцев: предварительный поиск, подача заявки и экспертиза. Мы сопровождаем весь процесс и информируем вас на каждом этапе.',
+      faq_q4: 'Вы работаете с иностранными компаниями?',
+      faq_a4: 'Да. Мы регулярно консультируем международные компании, зарубежные бренды и индивидуальных изобретателей, выходящих на рынки Центральной Азии или уже работающих в регионе. Мы свободно работаем на русском и английском языках.',
+      faq_q5: 'Можете ли вы защитить наш бренд сразу в нескольких странах?',
+      faq_a5: 'Да. Мы занимаемся как национальной регистрацией в каждой юрисдикции, так и международной подачей через Мадридскую систему. Мы порекомендуем наиболее эффективный маршрут с учётом вашего бюджета и целевых рынков.',
+      faq_q6: 'Как начать сотрудничество?',
+      faq_a6: 'Просто напишите нам через контактную форму или по электронной почте. Мы организуем консультацию, чтобы понять ваши задачи и наметить чёткий практический план — без каких-либо обязательств.',
+      footer_copy: '© 2026 Astra Solutions. Все права защищены.',
+    }
+  };
+
+  let currentLang = localStorage.getItem('lang') || 'en';
+
+  function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('lang', lang);
+    document.documentElement.lang = lang;
+    document.documentElement.classList.toggle('lang-ru', lang === 'ru');
+    document.title = translations[lang].page_title;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const v = translations[lang][el.dataset.i18n];
+      if (v !== undefined) el.innerHTML = v;
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const v = translations[lang][el.dataset.i18nPlaceholder];
+      if (v !== undefined) el.placeholder = v;
+    });
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      const isActive = btn.dataset.lang === lang;
+      btn.classList.toggle('active', isActive);
+      btn.classList.toggle('inactive', !isActive);
+    });
+  }
+
+  setLang(currentLang);
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      setLang(btn.dataset.lang);
+    });
+  });
+
+  // ── Nav scroll state
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+
+  // ── Mobile menu
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const mobileClose = document.getElementById('mobile-close');
+
+  hamburger.addEventListener('click', () => mobileMenu.classList.add('open'));
+  mobileClose.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  document.querySelectorAll('[data-mobile-link]').forEach(link => {
+    link.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  });
+
+  // ── Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  reveals.forEach(el => revealObs.observe(el));
+
+  // Immediately reveal hero elements
+  document.querySelectorAll('#hero .reveal').forEach((el, i) => {
+    setTimeout(() => el.classList.add('in'), 80 + i * 140);
+  });
+
+  // ── Counter animation
+  function animateCount(el, target, duration) {
+    const start = performance.now();
+    const suffix = target >= 10 ? '+' : '';
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const value = Math.round(ease * target);
+      el.textContent = value + (progress > 0.05 ? suffix : '');
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  let statsRun = false;
+  const statsSection = document.getElementById('stats');
+  const statsObs = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !statsRun) {
+      statsRun = true;
+      animateCount(document.getElementById('s1'), 500, 2000);
+      setTimeout(() => animateCount(document.getElementById('s2'), 300, 1800), 200);
+      setTimeout(() => animateCount(document.getElementById('s3'), 10, 1400), 380);
+    }
+  }, { threshold: 0.3 });
+  if (statsSection) statsObs.observe(statsSection);
+
+  // ── Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href');
+      if (id === '#') return;
+      const target = document.querySelector(id);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // ── Form submit
+  function setFieldError(inputId, errId, condition) {
+    const el = document.getElementById(inputId);
+    const err = document.getElementById(errId);
+    if (condition) {
+      el.classList.add('invalid');
+      err.classList.add('visible');
+      return false;
+    }
+    el.classList.remove('invalid');
+    err.classList.remove('visible');
+    return true;
+  }
+
+  // Clear error on input
+  ['fname','lname','email','service','message'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function() {
+      this.classList.remove('invalid');
+      const err = document.getElementById('err-' + id);
+      if (err) err.classList.remove('visible');
+    });
+  });
+
+  document.getElementById('contact-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const fname   = document.getElementById('fname').value.trim();
+    const lname   = document.getElementById('lname').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const service = document.getElementById('service').value;
+    const message = document.getElementById('message').value.trim();
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    const v1 = setFieldError('fname',   'err-fname',   !fname);
+    const v2 = setFieldError('lname',   'err-lname',   !lname);
+    const v3 = setFieldError('email',   'err-email',   !emailOk);
+    const v4 = setFieldError('service', 'err-service', !service);
+    const v5 = setFieldError('message', 'err-message', !message);
+    if (!(v1 && v2 && v3 && v4 && v5)) return;
+
+    const btn = this.querySelector('button[type="submit"]');
+    btn.innerHTML = `<span>Sending…</span>`;
+    btn.disabled = true;
+
+    emailjs.send('service_fovisop', 'template_32es07o', {
+      from_name: `${fname} ${lname}`,
+      from_email: email,
+      service: service,
+      message: message
+    }).then(() => {
+      btn.innerHTML = `<span>${translations[currentLang].form_sent}</span>`;
+      btn.style.background = 'var(--gold-dark)';
+      this.reset();
+      setTimeout(() => {
+        btn.innerHTML = `<span>${translations[currentLang].form_submit}</span><span>&#8594;</span>`;
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 3500);
+    }).catch(() => {
+      btn.innerHTML = `<span>Error — try again</span>`;
+      btn.style.background = '#a33';
+      btn.disabled = false;
+    });
+  });
+
+  // ── Regional Map
+  (function() {
+    const countries = [
+      { en: 'Kazakhstan',   ru: 'Казахстан',    coords: [48.02, 66.92] },
+      { en: 'Kyrgyzstan',   ru: 'Кыргызстан',   coords: [41.20, 74.77] },
+      { en: 'Uzbekistan',   ru: 'Узбекистан',   coords: [41.38, 64.59] },
+      { en: 'Turkmenistan', ru: 'Туркменистан', coords: [38.97, 59.56] },
+      { en: 'Tajikistan',   ru: 'Таджикистан',  coords: [38.86, 71.28] },
+      { en: 'Azerbaijan',   ru: 'Азербайджан',  coords: [40.14, 47.58] },
+      { en: 'Armenia',      ru: 'Армения',       coords: [40.07, 45.04] },
+      { en: 'Georgia',      ru: 'Грузия',        coords: [42.32, 43.36] },
+      { en: 'Moldova',      ru: 'Молдова',       coords: [47.41, 28.37] },
+      { en: 'Mongolia',     ru: 'Монголия',      coords: [46.86, 103.85] },
+    ];
+
+    const map = L.map('region-map', {
+      zoomControl: false,
+      scrollWheelZoom: false,
+      attributionControl: false,
+      dragging: !L.Browser.mobile,
+      tap: false,
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 8,
+    }).addTo(map);
+
+    const mapBounds = L.latLngBounds(countries.map(c => c.coords));
+    map.fitBounds(mapBounds, { padding: [55, 80], maxZoom: 4 });
+
+    function makeIcon() {
+      return L.divIcon({
+        className: '',
+        html: `<div class="map-marker-wrap">
+          <div class="map-marker-pulse"></div>
+          <div class="map-marker-pulse map-marker-pulse-2"></div>
+          <div class="map-marker-pulse map-marker-pulse-3"></div>
+          <div class="map-marker-core"></div>
+        </div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+        tooltipAnchor: [0, -14],
+      });
+    }
+
+    countries.forEach(c => {
+      const marker = L.marker(c.coords, { icon: makeIcon() }).addTo(map);
+      marker.bindTooltip('', {
+        className: 'map-tip',
+        permanent: false,
+        direction: 'top',
+        offset: [0, -4],
+      });
+      marker.on('tooltipopen', () => {
+        const lang = document.documentElement.lang || 'en';
+        marker.setTooltipContent(lang === 'ru' ? c.ru : c.en);
+      });
+    });
+
+    new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) map.invalidateSize();
+    }, { threshold: 0.1 }).observe(document.getElementById('region-map'));
+  })();
+</script>
+
+<script>
+  // ══════════════ FAQ accordion ══════════════
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(el => {
+        el.classList.remove('open');
+        el.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  (function() {
+    var loader  = document.getElementById('loader');
+    var fill    = document.getElementById('loaderFill');
+    function exit() {
+      fill.classList.add('complete');
+      setTimeout(function() {
+        loader.classList.add('loader-exit');
+        loader.addEventListener('transitionend', function() {
+          loader.style.display = 'none';
+        }, { once: true });
+      }, 380);
+    }
+    if (document.readyState === 'complete') {
+      setTimeout(exit, 500);
+    } else {
+      window.addEventListener('load', function() { setTimeout(exit, 350); });
+    }
+  })();
+</script>
+
+</body>
+</html>
