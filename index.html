@@ -58,28 +58,62 @@
       background: rgba(253, 248, 241, 0.93);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid rgba(212, 145, 58, 0.14);
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  border-color 0.4s ease,
+                  box-shadow 0.4s ease;
     }
-    #nav.scrolled {
+    #nav.scrolled:not(.nav-dark) {
       border-bottom-color: rgba(212, 145, 58, 0.28);
       box-shadow: 0 4px 32px rgba(26, 16, 5, 0.06);
+    }
+
+    /* Nav dark theme — hero, stats, contact (dark ink backgrounds) */
+    #nav.nav-dark {
+      background: rgba(26, 16, 5, 0.70);
+      border-bottom-color: rgba(212, 145, 58, 0.10);
+    }
+    #nav.nav-dark.scrolled {
+      background: rgba(26, 16, 5, 0.90);
+      border-bottom-color: rgba(212, 145, 58, 0.18);
+      box-shadow: 0 4px 32px rgba(0, 0, 0, 0.30);
+    }
+    #nav.nav-dark .nav-logo-img      { filter: brightness(0) invert(1); }
+    #nav.nav-dark .nav-wordmark-name { color: rgba(253, 248, 241, 0.90); }
+    #nav.nav-dark .nav-wordmark-sub  { color: rgba(253, 248, 241, 0.34); }
+    #nav.nav-dark .nav-link          { color: rgba(253, 248, 241, 0.52); }
+    #nav.nav-dark .nav-link:hover    { color: var(--gold); }
+    #nav.nav-dark .nav-link.active   { color: var(--gold); }
+    #nav.nav-dark .nav-sep           { background: rgba(212, 145, 58, 0.24); }
+    #nav.nav-dark .nav-lang.inactive { color: rgba(253, 248, 241, 0.28); }
+    #nav.nav-dark .hamburger         { color: rgba(253, 248, 241, 0.85); }
+
+    /* Nav warm theme — services (gold-faint background) */
+    #nav.nav-warm {
+      background: rgba(237, 214, 176, 0.92);
+      border-bottom-color: rgba(212, 145, 58, 0.22);
+    }
+    #nav.nav-warm.scrolled {
+      border-bottom-color: rgba(212, 145, 58, 0.34);
+      box-shadow: 0 4px 32px rgba(168, 108, 30, 0.09);
     }
     .nav-inner {
       max-width: 1320px; margin: 0 auto; padding: 0 2rem;
       height: 100%; display: flex; align-items: center; justify-content: space-between;
     }
     .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-    .nav-logo-img { height: 36px; width: 36px; flex-shrink: 0; }
+    .nav-logo-img { height: 36px; width: 36px; flex-shrink: 0; transition: filter 0.45s ease; }
     .nav-wordmark { line-height: 1; }
     .nav-wordmark-name {
       font-family: 'Cormorant Garamond', serif;
       font-size: 1.0625rem; font-weight: 600;
       color: var(--ink); letter-spacing: 0.09em; text-transform: uppercase;
+      transition: color 0.45s ease;
     }
     .nav-wordmark-sub {
       font-size: 0.65rem; font-weight: 400;
       letter-spacing: 0.22em; color: var(--ink-muted);
       text-transform: uppercase; margin-top: 2px;
+      transition: color 0.45s ease;
     }
     .nav-links { display: flex; align-items: center; gap: 2.5rem; }
     .nav-link {
@@ -97,7 +131,7 @@
     .nav-link:hover { color: var(--gold); }
     .nav-link:hover::after { width: 100%; }
     .nav-link.active { color: var(--gold); }
-    .nav-sep { width: 1px; height: 14px; background: var(--gold-pale); }
+    .nav-sep { width: 1px; height: 14px; background: var(--gold-pale); transition: background 0.45s ease; }
     .nav-lang {
       font-size: 0.8rem; font-weight: 600; letter-spacing: 0.14em;
       text-transform: uppercase; text-decoration: none; cursor: pointer;
@@ -110,6 +144,7 @@
     .hamburger {
       display: none; background: none; border: none;
       cursor: pointer; color: var(--ink); padding: 4px;
+      transition: color 0.45s ease;
     }
     @media (max-width: 768px) {
       .nav-links { display: none; }
@@ -145,7 +180,7 @@
     .gold-rule { height: 1px; background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-light) 50%, var(--gold) 70%, transparent); }
     .gold-dash { display: inline-block; width: 48px; height: 1px; background: linear-gradient(90deg, var(--gold), var(--gold-light), transparent); vertical-align: middle; }
     .display-xl {
-      font-size: clamp(3.25rem, 7.5vw, 7.5rem);
+      font-size: clamp(2.75rem, 5.5vw, 5.5rem);
       font-weight: 400; line-height: 1.01; letter-spacing: -0.03em;
     }
     html.lang-ru .display-xl { font-size: clamp(2.5rem, 4.75vw, 4.75rem); }
@@ -1509,11 +1544,34 @@
     });
   });
 
-  // ── Nav scroll state
+  // ── Nav adaptive theme (changes color per section)
   const nav = document.getElementById('nav');
-  window.addEventListener('scroll', () => {
+  const NAV_THEMES = {
+    hero:    'dark',
+    about:   'light',
+    services:'warm',
+    stats:   'dark',
+    coverage:'light',
+    team:    'light',
+    contact: 'dark'
+  };
+  const navSections = Object.entries(NAV_THEMES)
+    .map(([id, theme]) => ({ el: document.getElementById(id), theme }))
+    .filter(s => s.el);
+
+  function updateNav() {
+    const trigger = window.scrollY + 80;
+    let active = navSections[0];
+    for (const s of navSections) {
+      if (s.el.offsetTop <= trigger) active = s;
+    }
+    nav.classList.remove('nav-dark', 'nav-light', 'nav-warm');
+    nav.classList.add('nav-' + active.theme);
     nav.classList.toggle('scrolled', window.scrollY > 40);
-  }, { passive: true });
+  }
+
+  window.addEventListener('scroll', updateNav, { passive: true });
+  updateNav();
 
   // ── Mobile menu
   const hamburger = document.getElementById('hamburger');
