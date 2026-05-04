@@ -177,6 +177,7 @@
       font-size: 0.75rem; font-weight: 600;
       letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold);
     }
+    html.lang-ru [data-i18n="team_tag"] { display: none; }
     .gold-rule { height: 1px; background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-light) 50%, var(--gold) 70%, transparent); }
     .gold-dash { display: inline-block; width: 48px; height: 1px; background: linear-gradient(90deg, var(--gold), var(--gold-light), transparent); vertical-align: middle; }
     .display-xl {
@@ -474,11 +475,11 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 2.25rem;
     }
-    .tcard { }
     .tcard-img-wrap {
       position: relative; overflow: hidden;
       aspect-ratio: 3/4; margin-bottom: 1.125rem;
       background: var(--gold-pale);
+      border-radius: 50%;
     }
     .tcard-img-wrap img {
       width: 100%; height: 100%; object-fit: cover;
@@ -493,7 +494,8 @@
     }
     .tcard-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(26,16,5,0.55) 0%, transparent 50%);
+      background: radial-gradient(ellipse at center, transparent 45%, rgba(26,16,5,0.55) 100%);
+      border-radius: 50%;
     }
     .tcard h4 {
       font-size: 1.125rem; font-weight: 600;
@@ -948,6 +950,7 @@
         <span class="country-item" data-i18n="country_ge">Georgia</span>
         <span class="country-item" data-i18n="country_md">Moldova</span>
         <span class="country-item" data-i18n="country_mn">Mongolia</span>
+        <span class="country-item" data-i18n="country_by">Belarus</span>
       </div>
     </div>
   </div>
@@ -1130,43 +1133,43 @@
     <div class="team-grid">
       <div class="tcard reveal">
         <div class="tcard-img-wrap">
-          <img src="https://placehold.co/280x373/D4913A/FDF8F1?text=AS" alt="Arseniy Sidorov">
+          <img src="teamPhotos/Arseniy%20Sidorov.jpg" alt="Arseniy Sidorov">
           <div class="tcard-overlay"></div>
         </div>
-        <h4>Arseniy Sidorov</h4>
+        <h4 data-i18n="name_arseniy">Arseniy Sidorov</h4>
         <p class="tcard-role" data-i18n="role_managing_director">Managing Director</p>
       </div>
       <div class="tcard reveal" data-delay="1">
         <div class="tcard-img-wrap">
-          <img src="https://placehold.co/280x373/B07428/FDF8F1?text=GI" alt="Gulnara Ilyassova">
+          <img src="teamPhotos/Gulnara%20Utyapova.jpg" alt="Gulnara Utyapova">
           <div class="tcard-overlay"></div>
         </div>
-        <h4>Gulnara Ilyassova</h4>
+        <h4 data-i18n="name_gulnara">Gulnara Utyapova</h4>
         <p class="tcard-role" data-i18n="role_tm_patent">Trademark &amp; Patent Attorney</p>
       </div>
       <div class="tcard reveal" data-delay="2">
         <div class="tcard-img-wrap">
-          <img src="https://placehold.co/280x373/8B5E2A/FDF8F1?text=EG" alt="Evgeniy Gritsenko">
+          <img src="teamPhotos/Evgeniy%20Gritsenko.jpg" alt="Evgeniy Gritsenko">
           <div class="tcard-overlay"></div>
         </div>
-        <h4>Evgeniy Gritsenko</h4>
-        <p class="tcard-role" data-i18n="role_gp_counsel">General Practice Counsel</p>
+        <h4 data-i18n="name_evgeniy">Evgeniy Gritsenko</h4>
+        <p class="tcard-role" data-i18n="role_gp_counsel">General Practice.<br>Of Counsel</p>
       </div>
       <div class="tcard reveal" data-delay="3">
         <div class="tcard-img-wrap">
-          <img src="https://placehold.co/280x373/A56E20/FDF8F1?text=TB" alt="Tair Buirakulov">
+          <img src="teamPhotos/Tair%20Buirakulov.jpg" alt="Tair Buirakulov">
           <div class="tcard-overlay"></div>
         </div>
-        <h4>Tair Buirakulov</h4>
-        <p class="tcard-role" data-i18n="role_gp_of_counsel">General Practice Of Counsel</p>
+        <h4 data-i18n="name_tair">Tair Buirakulov</h4>
+        <p class="tcard-role" data-i18n="role_gp_of_counsel">General Practice.<br>Of Counsel</p>
       </div>
       <div class="tcard reveal" data-delay="4">
         <div class="tcard-img-wrap">
-          <img src="https://placehold.co/280x373/C4813A/FDF8F1?text=LK" alt="Liya Kosheleva">
+          <img src="teamPhotos/Liya%20Kosheleva.jpg" alt="Liya Kosheleva">
           <div class="tcard-overlay"></div>
         </div>
-        <h4>Liya Kosheleva</h4>
-        <p class="tcard-role" data-i18n="role_associate">Associate</p>
+        <h4 data-i18n="name_liya">Liya Kosheleva</h4>
+        <p class="tcard-role" data-i18n="role_associate">Accountant</p>
       </div>
     </div>
   </div>
@@ -1218,7 +1221,7 @@
         </div>
         <div>
           <div class="contact-detail-label" data-i18n="label_location">Location</div>
-          <span class="contact-detail-value" data-i18n="location_value">Kazakhstan, 050040, Almaty, Kapparov street, 9/10 building, 2 office</span>
+          <span class="contact-detail-value" data-i18n="location_value">Kazakhstan, 050044, Almaty, Kapparov street, 9/10 building, 2 office</span>
         </div>
       </div>
     </div>
@@ -1298,7 +1301,7 @@
 
     <div class="footer-bottom">
       <p class="footer-copy" data-i18n="footer_copy">© 2026 Astra Solutions. All rights reserved.</p>
-      <p class="footer-countries">Kazakhstan · Kyrgyzstan · Uzbekistan · Turkmenistan · Tajikistan · Azerbaijan · Armenia · Georgia · Moldova · Mongolia</p>
+      <p class="footer-countries">Kazakhstan · Kyrgyzstan · Uzbekistan · Turkmenistan · Tajikistan · Azerbaijan · Armenia · Georgia · Moldova · Mongolia · Belarus</p>
     </div>
   </div>
 </footer>
@@ -1322,7 +1325,7 @@
       hero_countries_label: 'Operating in',
       country_kz: 'Kazakhstan', country_kg: 'Kyrgyzstan', country_uz: 'Uzbekistan',
       country_tm: 'Turkmenistan', country_tj: 'Tajikistan', country_az: 'Azerbaijan',
-      country_am: 'Armenia', country_ge: 'Georgia', country_md: 'Moldova', country_mn: 'Mongolia',
+      country_am: 'Armenia', country_ge: 'Georgia', country_md: 'Moldova', country_mn: 'Mongolia', country_by: 'Belarus',
       about_quote:   '“Smart solutions for your business — with the precision of specialists and the vision of strategists.”',
       about_tag:     'About the Firm',
       about_heading: 'Boutique expertise.<br>International reach.',
@@ -1363,18 +1366,23 @@
       team_tag:     'The People Behind the Work',
       team_heading: 'Our Team',
       team_blurb:   'Professionals with local and international experience in intellectual property, business development, civil litigation, and arbitration.',
+      name_arseniy: 'Arseniy Sidorov',
+      name_gulnara: 'Gulnara Utyapova',
+      name_evgeniy: 'Evgeniy Gritsenko',
+      name_tair:    'Tair Buirakulov',
+      name_liya:    'Liya Kosheleva',
       role_managing_director: 'Managing Director',
       role_tm_patent:         'Trademark &amp; Patent Attorney',
-      role_gp_counsel:        'General Practice Counsel',
-      role_gp_of_counsel:     'General Practice Of Counsel',
-      role_associate:         'Associate',
+      role_gp_counsel:        'General Practice.<br>Of Counsel',
+      role_gp_of_counsel:     'General Practice.<br>Of Counsel',
+      role_associate:         'Accountant',
       contact_tag:     'Get In Touch',
       contact_heading: 'Let’s work<br><em>together.</em>',
       contact_blurb:   'Should you have any questions about protecting your intellectual property, establishing a business in Kazakhstan, or resolving a dispute — we would be glad to hear from you.',
       label_email:    'Email',
       label_phone:    'Phone',
       label_location: 'Location',
-      location_value: 'Kazakhstan, 050040, Almaty, Kapparov street, 9/10 building, 2 office',
+      location_value: 'Kazakhstan, 050044, Almaty, Kapparov street, 9/10 building, 2 office',
       form_fname:   'First Name',
       form_lname:   'Last Name',
       form_email:   'Email Address',
@@ -1398,7 +1406,7 @@
       faq_q2: 'Which countries do you operate in?',
       faq_a2: 'We operate across 10 jurisdictions — Kazakhstan, Kyrgyzstan, Uzbekistan, Turkmenistan, Tajikistan, Azerbaijan, Armenia, Georgia, Moldova, and Mongolia. Our local knowledge in each market sets us apart from general international firms.',
       faq_q3: 'How long does trademark registration take?',
-      faq_a3: 'Timelines vary by jurisdiction. In Kazakhstan, trademark registration typically takes 12–18 months, covering preliminary search, application filing, and examination. We manage the entire process on your behalf and keep you updated at every stage.',
+      faq_a3: 'Timelines vary by jurisdiction. In Kazakhstan, trademark registration typically takes 8–9 months, covering preliminary search, application filing, and examination. We manage the entire process on your behalf and keep you updated at every stage.',
       faq_q4: 'Do you work with foreign companies?',
       faq_a4: 'Yes. We regularly advise multinational companies, international brands, and individual innovators entering or operating in Central Asian markets. We work fluently in both English and Russian.',
       faq_q5: 'Can you protect our brand across multiple countries at once?',
@@ -1422,7 +1430,7 @@
       hero_countries_label: 'Работаем в',
       country_kz: 'Казахстан', country_kg: 'Кыргызстан', country_uz: 'Узбекистан',
       country_tm: 'Туркменистан', country_tj: 'Таджикистан', country_az: 'Азербайджан',
-      country_am: 'Армения', country_ge: 'Грузия', country_md: 'Молдова', country_mn: 'Монголия',
+      country_am: 'Армения', country_ge: 'Грузия', country_md: 'Молдова', country_mn: 'Монголия', country_by: 'Беларусь',
       about_quote:   '«Умные решения для вашего бизнеса — с точностью специалистов и видением стратегов.»',
       about_tag:     'О фирме',
       about_heading: 'Бутиковая экспертиза.<br>Международный охват.',
@@ -1463,18 +1471,23 @@
       team_tag:     'Люди за нашей работой',
       team_heading: 'Наша команда',
       team_blurb:   'Специалисты с местным и международным опытом в области интеллектуальной собственности, развития бизнеса, гражданского судопроизводства и арбитража.',
+      name_arseniy: 'Арсений Сидоров',
+      name_gulnara: 'Гульнара Утяпова',
+      name_evgeniy: 'Евгений Гриценко',
+      name_tair:    'Таир Буйракулов',
+      name_liya:    'Лия Кошелева',
       role_managing_director: 'Управляющий директор',
       role_tm_patent:         'Поверенный по товарным знакам и патентам',
-      role_gp_counsel:        'Советник общей практики',
-      role_gp_of_counsel:     'Советник общей практики',
-      role_associate:         'Юрист',
+      role_gp_counsel:        'Общая практика.<br>Советник',
+      role_gp_of_counsel:     'Общая практика.<br>Советник',
+      role_associate:         'Бухгалтер',
       contact_tag:     'Связаться с нами',
       contact_heading: 'Давайте работать<br><em>вместе.</em>',
       contact_blurb:   'Если у вас есть вопросы о защите интеллектуальной собственности, открытии бизнеса в Казахстане или разрешении спора — мы будем рады вас услышать.',
       label_email:    'Электронная почта',
       label_phone:    'Телефон',
       label_location: 'Местоположение',
-      location_value: 'Казахстан, 050040, Алматы, улица Каппарова, здание 9/10, офис 2',
+      location_value: 'Казахстан, 050044, Алматы, улица Каппарова, здание 9/10, офис 2',
       form_fname:   'Имя',
       form_lname:   'Фамилия',
       form_email:   'Адрес электронной почты',
@@ -1498,7 +1511,7 @@
       faq_q2: 'В каких странах вы работаете?',
       faq_a2: 'Мы работаем в 10 юрисдикциях — Казахстан, Кыргызстан, Узбекистан, Туркменистан, Таджикистан, Азербайджан, Армения, Грузия, Молдова и Монголия. Глубокое знание местных рынков отличает нас от крупных международных фирм.',
       faq_q3: 'Сколько времени занимает регистрация товарного знака?',
-      faq_a3: 'Сроки зависят от юрисдикции. В Казахстане регистрация товарного знака занимает, как правило, 12–18 месяцев: предварительный поиск, подача заявки и экспертиза. Мы сопровождаем весь процесс и информируем вас на каждом этапе.',
+      faq_a3: 'Сроки зависят от юрисдикции. В Казахстане регистрация товарного знака занимает, как правило, 8–9 месяцев: предварительный поиск, подача заявки и экспертиза. Мы сопровождаем весь процесс и информируем вас на каждом этапе.',
       faq_q4: 'Вы работаете с иностранными компаниями?',
       faq_a4: 'Да. Мы регулярно консультируем международные компании, зарубежные бренды и индивидуальных изобретателей, выходящих на рынки Центральной Азии или уже работающих в регионе. Мы свободно работаем на русском и английском языках.',
       faq_q5: 'Можете ли вы защитить наш бренд сразу в нескольких странах?',
@@ -1719,6 +1732,7 @@
       { en: 'Georgia',      ru: 'Грузия',        coords: [42.32, 43.36] },
       { en: 'Moldova',      ru: 'Молдова',       coords: [47.41, 28.37] },
       { en: 'Mongolia',     ru: 'Монголия',      coords: [46.86, 103.85] },
+      { en: 'Belarus',      ru: 'Беларусь',      coords: [53.71, 27.97] },
     ];
 
     const map = L.map('region-map', {
